@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\User;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class PostUpdateRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can(User::PERMISSION_POST_UPDATE);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            'description' => ['required', 'string'],
+            'content' => ['required'],
+            'active' => ['nullable', 'boolean'],
+            'category_id' => ['nullable', 'integer', Rule::exists('categories', 'id')],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['required', 'integer', Rule::exists('tags', 'id')],
+            'attachment' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:250000'],
+            'is_comments' => ['nullable', 'boolean'],
+            'meta.title' => ['required', 'string'],
+            'meta.description' => ['required', 'string'],
+            'meta.keywords' => ['required', 'string'],
+            'meta.slug' => ['nullable', 'string'],
+        ];
+    }
+}
